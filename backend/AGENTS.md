@@ -12,9 +12,20 @@ app only; see `../AGENTS.md` for the rest of the repository.
 ## Architecture rules
 - Platform code lives in `app/core/` (settings, shared clients) and `app/api/v1/`
   (health + router registration). Each feature is a self-contained module
-  `app/apps/<name>/` with `router.py` (HTTP only), `service.py` (logic, LLM calls),
-  `schemas.py` (Pydantic models). Apps must not import from each other.
-- Routers stay thin; no Bedrock/LangChain/LangGraph code in routers.
+  `app/apps/<name>/`. Apps must not import from each other — if one app
+  needs another's data, that's a signal it belongs in `app/core/` instead.
+- **Code-style convention (apply going forward; no app is fully split yet):**
+  within `app/apps/<name>/`, separate:
+  - `apis/` — route functions only: parse the request, call an action, return
+    the response. No business logic, no direct Bedrock/LangChain/boto3 calls.
+  - `actions/` — one orchestration step per use case (e.g. "handle an incoming
+    chat message"); calls into `services/` and shapes the result for `apis/`.
+  - `services/` — the actual logic: LLM calls, external APIs, data access.
+  `schemas.py` (Pydantic models) sits alongside these. A route handler's only
+  job is to depend on an action and return its result — if you find LLM/boto3
+  code in a file under `apis/`, that's a bug to fix, not a style choice.
+  `basic_chatbot` currently has only a flat `router.py` because it has no
+  functionality yet; split it into this layout when real logic is added.
 - Register each app router in `app/api/v1/__init__.py`.
 - Every endpoint declares `response_model` and typed Pydantic request bodies.
 - Use `Depends(...)` for settings and shared clients (so tests can override them).
@@ -33,6 +44,17 @@ app only; see `../AGENTS.md` for the rest of the repository.
 
 ## Dependencies
 - Add new packages to `requirements.txt` with pinned versions, installed in the repo venv.
+  Verify the version actually installed (`pip show <pkg>`) rather than guessing —
+  don't write a version you haven't checked.
+- `requirements.txt` here (and `../requirement_v2.txt` at repo root) are
+  **direct-dependency files**, not freeze/lock files: list only packages the
+  code imports by name, or that are required to run/test it even if not
+  imported (say why, in a comment, e.g. `uvicorn` as the ASGI server). Do not
+  dump `pip freeze`'s transitive closure into them. `../requirement.txt`
+  remains the full frozen snapshot for the repo-root project — do not treat
+  this file as replacing it.
+- Never silently drop a package whose purpose is uncertain; flag it in your
+  report instead and ask, or leave it with a comment explaining the doubt.
 
 ## Documentation (mandatory)
 After ANY change in `backend/` - new/removed/renamed app, route, setting,
@@ -40,7 +62,13 @@ dependency, file/folder, or run/test command - update the docs in the same
 change, before reporting the task done:
 - `README.md`: Structure tree, Applications table, Endpoints table, Configuration
   table, Setup/Run/Test commands (whichever apply).
-- `AGENTS.md`: any rule or path that became inaccurate.
+- `docs/<app>/README.md` and `docs/<app>/apis/<endpoint>.md` for every app whose
+  behavior, routes, response contracts, permissions, models, or cross-app
+  dependencies changed. Update file/line references and links if files moved.
+  **Verify every example response against a real test, schema, or fixture** —
+  if none exists, label it "illustrative (unverified)" and say what wasn't
+  checked; never present an invented response as observed.
+- `AGENTS.md`: any rule, path, or the "Current apps" list that became inaccurate.
 - `.claude/skills/*/SKILL.md`: any step or example that became inaccurate.
 - `../.env.example`: placeholders for any new environment variable.
 - `../AGENTS.md` project map, if top-level backend layout changed.

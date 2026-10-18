@@ -20,7 +20,10 @@ backend/
 │   └── apps/
 │       └── basic_chatbot/   Placeholder app (router.py only, no functionality yet)
 ├── tests/                   pytest + TestClient (test_health.py, test_basic_chatbot.py)
-├── requirements.txt         Backend dependencies (pinned)
+├── docs/                    Functional + API docs per application (see "Documentation")
+│   ├── platform/            Shared plumbing: health route, settings
+│   └── basic_chatbot/       The basic_chatbot app
+├── requirements.txt         Backend direct dependencies (verified versions, not a freeze file)
 ├── AGENTS.md                Rules for AI coding agents (includes docs-update rule)
 ├── CLAUDE.md                Imports AGENTS.md for Claude Code
 └── .claude/skills/          add-fastapi-endpoint, update-backend-docs
@@ -39,7 +42,10 @@ backend/
 | GET | `/api/v1/health` | Liveness check: `{"status","app","version"}` |
 | GET | `/api/v1/basic-chatbot` | basic_chatbot placeholder: `{"app","status":"not implemented"}` |
 
-Interactive docs: `/docs` (Swagger UI) and `/redoc`.
+Interactive (auto-generated) docs: `/docs` (Swagger UI) and `/redoc`.
+Hand-written functional/API docs per application: `docs/<app>/README.md` and
+`docs/<app>/apis/<endpoint>.md` — start at [docs/platform/README.md](docs/platform/README.md)
+and [docs/basic_chatbot/README.md](docs/basic_chatbot/README.md).
 
 ## Setup
 
@@ -86,15 +92,29 @@ ignored). Access via `Depends(get_settings)`.
 
 ## Adding a new app
 
-1. Create `app/apps/<name>/` with `__init__.py` (suggested: `router.py`, `schemas.py`, `service.py`)
+1. Create `app/apps/<name>/` with `__init__.py`. Once the app has real
+   functionality, split it into `apis/` (route functions), `actions/`
+   (orchestration), `services/` (LLM/external calls) and `schemas.py` — see
+   "Architecture rules" in `AGENTS.md`. A placeholder with no functionality
+   yet (like `basic_chatbot`) may start as a flat `router.py`.
 2. Register the router in `app/api/v1/__init__.py`
 3. Add `tests/test_<name>.py` (override dependencies; no network)
-4. Update this README (Structure, Applications, Endpoints) - see `AGENTS.md`
+4. Update this README (Structure, Applications, Endpoints), add
+   `docs/<name>/README.md` and `docs/<name>/apis/<endpoint>.md` - see `AGENTS.md`
 
 The `add-fastapi-endpoint` skill walks through these steps.
+
+## Dependency files
+
+`requirements.txt` here (and `../requirement_v2.txt` at the repo root) list
+**direct dependencies only** — packages imported by name, or required to
+run/test the code even if not imported (noted in a comment why). They are
+not a `pip freeze` dump. `../requirement.txt` at the repo root is the full,
+fully-pinned freeze/lock file for reproducing the whole shared environment;
+these direct-dependency files don't replace it and nothing here changes it.
 
 ## Keeping docs current
 
 Any change to routes, apps, settings, dependencies, structure or run/test
-commands must update this README, `AGENTS.md` and the skills in the same
-change. See the "Documentation" section of `AGENTS.md`.
+commands must update this README, `docs/<app>/`, `AGENTS.md` and the skills
+in the same change. See the "Documentation" section of `AGENTS.md`.
