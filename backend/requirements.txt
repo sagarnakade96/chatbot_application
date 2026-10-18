@@ -1,0 +1,16 @@
+# Backend direct dependencies, verified against the shared repo venv
+# (../venv) on 2026-10-18. See AGENTS.md "Dependency files" for what
+# this is (not a full freeze/lock file).
+
+fastapi==0.143.0
+uvicorn[standard]==0.52.1
+pydantic==2.13.4
+pydantic-settings==2.15.0
+
+# Dev/test tooling (not imported by app code, but required to run/test):
+pytest==9.1.1
+
+# Required at runtime by fastapi/pydantic-settings/TestClient but not
+# imported directly by name in this codebase:
+python-dotenv==1.2.2   # read indirectly via pydantic-settings' env_file support
+httpx==0.28.1           # transport used by starlette.testclient.TestClient

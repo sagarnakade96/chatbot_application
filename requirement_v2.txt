@@ -1,0 +1,29 @@
+# Direct dependencies only (not a full freeze/lock file).
+# See AGENTS.md "Dependency files" for how this differs from requirement.txt.
+# Verified against the installed versions in venv/ on 2026-10-18.
+
+boto3==1.43.68
+botocore==1.43.68
+python-dotenv==1.2.2
+streamlit==1.61.1
+langchain-aws==1.7.0
+langchain-core==1.6.10
+langchain-community==0.4.2
+langchain-text-splitters==1.1.2
+langchain-classic==1.0.8
+langgraph==1.2.11
+pydantic==2.13.4
+typing_extensions==4.16.0
+ipython==9.17.1
+black==26.5.1
+
+# Backing libraries required by langchain_community wrappers used in code,
+# but not imported by name (install or those features fail at call time):
+faiss-cpu==1.15.1          # langchain_community.vectorstores.FAISS (chatbot_rag/rag_backend.py)
+wikipedia==1.4.0           # langchain_community WikipediaAPIWrapper (langgraph/multi_tools_agent)
+arxiv==4.0.1               # langchain_community ArxivAPIWrapper (same file, currently commented out)
+tavily-python==0.8.5       # langchain_community.tools.tavily_search.TavilySearchResults (same file)
+
+# Declared/installed but no current import found anywhere in this repo.
+# Kept per owner decision (2026-10-18); remove if confirmed obsolete.
+langchain-tavily==0.2.18

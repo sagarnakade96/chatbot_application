@@ -22,6 +22,7 @@ Chatbot_Code/
 ├── langchain/             standalone LangChain lessons + template.json
 ├── langgraph/simple_chatbot/   LangGraph classifier/router  <-- see ARCHITECTURE.md
 ├── learning_app_kb/       Bedrock Knowledge Base streaming retrieval
+├── backend/               FastAPI multi-app backend (see backend/README.md, backend/AGENTS.md)
 ├── requirement.txt        pinned deps (NOTE: singular filename)
 ├── .env / .env.example    credentials for the boto3 scripts
 └── venv/                  local virtualenv (git-ignored)
@@ -92,6 +93,9 @@ key in the working tree or history, flag it — it must be rotated in AWS.
 - Hard-coded values: guardrail id, PDF URL, KB question.
 
 ## When making changes
+
+- Work in `backend/` follows `backend/AGENTS.md`, including its mandatory
+  documentation-update rule.
 
 - Keep experiments independent; don't add cross-folder imports.
 - Preserve pinned versions in `requirement.txt`; add new deps with an explicit
