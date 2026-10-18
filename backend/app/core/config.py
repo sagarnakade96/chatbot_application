@@ -12,7 +12,11 @@ class Settings(BaseSettings):
     app_version: str = "0.1.0"
     debug: bool = False
     api_v1_prefix: str = "/api/v1"
-    cors_origins: list[str] = ["http://localhost:8501"]
+    cors_origins: list[str] = [
+        "http://localhost:8501",  # Streamlit
+        "http://localhost:5173",  # Vite dev server (frontend/)
+        "http://localhost:5174",  # Vite fallback port if 5173 is busy
+    ]
 
     aws_access_key_id: str | None = None
     aws_secret_access_key: str | None = None
