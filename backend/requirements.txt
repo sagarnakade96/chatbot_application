@@ -1,0 +1,7 @@
+# Backend-only dependencies. Versions match the repo venv.
+fastapi==0.143.0
+uvicorn[standard]==0.52.1
+pydantic-settings==2.15.0
+python-dotenv==1.2.2
+httpx==0.28.1
+pytest==9.1.1
